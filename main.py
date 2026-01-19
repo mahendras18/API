@@ -15,7 +15,7 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 # Serve frontend files
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 
-# ✅ API key from environment variable
+# API key from environment variable
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # ===================== MODELS =====================
@@ -23,14 +23,17 @@ class ChatRequest(BaseModel):
     text: str
     language: str
 
+
 class ChatResponse(BaseModel):
     reply: str
+
 
 # ===================== FRONTEND =====================
 @app.get("/", response_class=HTMLResponse)
 def serve_ui():
     with open(os.path.join(FRONTEND_DIR, "index.html"), "r", encoding="utf-8") as f:
         return f.read()
+
 
 # ===================== CHAT API =====================
 @app.post("/chat", response_model=ChatResponse)
@@ -52,13 +55,15 @@ def chat(req: ChatRequest):
 
     return {"reply": completion.choices[0].message.content}
 
+
 # ===================== RUN =====================
 if __name__ == "__main__":
     uvicorn.run(
         app,
-        host="0.0.0.0",                      # ✅ REQUIRED for Render
-        port=int(os.getenv("PORT", 10000))   # ✅ REQUIRED for Render
+        host="0.0.0.0",                       # REQUIRED for Render
+        port=int(os.getenv("PORT", 10000))    # REQUIRED for Render
     )
+
 
 
 # import os
