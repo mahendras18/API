@@ -2,9 +2,11 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import Groq from "groq-sdk";
+import cors from "cors";            // <-- add this
 
 // ===================== INIT =====================
 const app = express();
+app.use(cors());                    // <-- and this
 app.use(express.json());
 
 const BASE_DIR = process.cwd();
