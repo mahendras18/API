@@ -2,23 +2,23 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import Groq from "groq-sdk";
-import cors from "cors";            // <-- add this
+import cors from "cors";
 
 // ===================== INIT =====================
 const app = express();
-app.use(cors());                    // <-- and this
+app.use(cors());
 app.use(express.json());
 
 const BASE_DIR = process.cwd();
 const FRONTEND_DIR = path.join(BASE_DIR, "frontend");
 
-// Serve frontend files
+// Serve frontend
 app.use("/frontend", express.static(FRONTEND_DIR));
 
-// Port (local or Render)
+// Port
 const PORT = process.env.PORT || 10000;
 
-// Groq client (NO hard-coded key)
+// Groq client
 const client = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
@@ -36,7 +36,8 @@ app.post("/chat", async (req, res) => {
 
   try {
     const completion = await client.chat.completions.create({
-      model: "meta-llama/llama-4-maverick-17b-128e-instruct",
+      model: "groq/compound",
+
       messages: [
         {
           role: "system",
@@ -47,10 +48,26 @@ app.post("/chat", async (req, res) => {
           content: text
         }
       ],
-      max_completion_tokens: 512
+
+      temperature: 1,
+      max_completion_tokens: 1024,
+      top_p: 1,
+
+      compound_custom: {
+        tools: {
+          enabled_tools: [
+            "web_search",
+            "code_interpreter",
+            "visit_website"
+          ]
+        }
+      }
     });
 
-    res.json({ reply: completion.choices[0].message.content });
+    res.json({
+      reply: completion.choices[0].message.content
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ reply: "Server error" });
